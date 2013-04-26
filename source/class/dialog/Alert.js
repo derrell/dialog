@@ -1,20 +1,20 @@
 /* ************************************************************************
 
    qooxdoo dialog library
-  
+
    http://qooxdoo.org/contrib/project#dialog
-  
+
    Copyright:
      2007-2010 Christian Boulanger
-  
+
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
      EPL: http://www.eclipse.org/org/documents/epl-v10.php
      See the LICENSE file in the project's top-level directory for details.
-  
+
    Authors:
    *  Christian Boulanger (cboulanger)
-  
+
 ************************************************************************ */
 
 /* ************************************************************************
@@ -27,26 +27,26 @@
 qx.Class.define("dialog.Alert",
 {
   extend : dialog.Dialog,
- 
+
   /*
   *****************************************************************************
      MEMBERS
   *****************************************************************************
-  */     
+  */
   members :
   {
-    
+
     /*
     ---------------------------------------------------------------------------
        WIDGET LAYOUT
     ---------------------------------------------------------------------------
-    */     
-    
+    */
+
     /**
      * Create the main content of the widget
      */
     _createWidgetContent : function()
-    {      
+    {
 
       /*
        * groupbox
@@ -60,13 +60,13 @@ qx.Class.define("dialog.Alert",
       var hbox = new qx.ui.container.Composite;
       hbox.setLayout( new qx.ui.layout.HBox(10) );
       groupboxContainer.add( hbox );
-      
+
       /*
-       * add image 
+       * add image
        */
       this._image = new qx.ui.basic.Image(this.getImage() || "icon/48/status/dialog-information.png" );
       hbox.add( this._image );
-      
+
       /*
        * Add message label
        */
@@ -74,13 +74,13 @@ qx.Class.define("dialog.Alert",
       this._message.setRich(true);
       this._message.setWidth(200);
       this._message.setAllowStretchX(true);
-      hbox.add( this._message, {flex:1} );    
-      
-      /* 
-       * Ok Button 
+      hbox.add( this._message, {flex:1} );
+
+      /*
+       * Ok Button
        */
       var okButton = this._createOkButton();
-      
+
       /*
        * buttons pane
        */
@@ -90,6 +90,13 @@ qx.Class.define("dialog.Alert",
       buttonPane.setLayout(bpLayout);
       buttonPane.add(okButton);
       groupboxContainer.add(buttonPane);
+
+      /*
+       * focus OK button
+       */
+      this.addListener("appear",function() {
+          okButton.focus();
+      });
     }
   }
 });
