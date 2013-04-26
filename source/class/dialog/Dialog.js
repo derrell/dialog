@@ -1,20 +1,20 @@
 /* ************************************************************************
 
    qooxdoo dialog library
-  
+
    http://qooxdoo.org/contrib/project#dialog
-  
+
    Copyright:
      2007-2010 Christian Boulanger
-  
+
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
      EPL: http://www.eclipse.org/org/documents/epl-v10.php
      See the LICENSE file in the project's top-level directory for details.
-  
+
    Authors:
    *  Christian Boulanger (cboulanger)
-  
+
 ************************************************************************ */
 
 /* ************************************************************************
@@ -23,14 +23,17 @@
 #asset(qx/icon/${qx.icontheme}/48/status/dialog-information.png)
 #asset(qx/icon/${qx.icontheme}/48/status/dialog-error.png)
 #asset(qx/icon/${qx.icontheme}/48/status/dialog-warning.png)
-
-#ignore(dialog.alert)
-#ignore(dialog.error)
-#ignore(dialog.warning)
-#ignore(dialog.confirm)
-#ignore(dialog.prompt)
-#ignore(dialog.select)
 ************************************************************************ */
+
+/**
+ * @lint ignoreUndefined(dialog.alert)
+ * @lint ignoreUndefined(dialog.error)
+ * @lint ignoreUndefined(dialog.warning)
+ * @lint ignoreUndefined(dialog.confirm)
+ * @lint ignoreUndefined(dialog.prompt)
+ * @lint ignoreUndefined(dialog.form)
+ * @lint ignoreUndefined(dialog.select)
+ */
 
 
 /**
@@ -40,23 +43,23 @@
 qx.Class.define("dialog.Dialog",
 {
   extend : qx.ui.container.Composite,
-  
+
   /*
   *****************************************************************************
      STATICS
   *****************************************************************************
-  */     
+  */
   statics :
-  {  
-  
+  {
+
     /**
      * Returns a dialog instance by type
-     * @param type {String} The dialog type to get
+     * @param {String} type The dialog type to get
      * @return dialog.Dialog
      */
     getInstanceByType : function(type)
-    {      
-       try 
+    {
+       try
        {
          return new dialog[qx.lang.String.firstUp(type)];
        }
@@ -65,36 +68,36 @@ qx.Class.define("dialog.Dialog",
          this.error(type + " is not a valid dialog type");
        }
     },
-    
+
     /**
      * Initialize the package
      * @deprecated
-     */    
+     */
     init : function()
     {
       qx.core.Init.getApplication().warn("Initializing the Dialog package is no longer necessary. Please remove calls to 'dialog.Dialog.init()', which is now deprecated.");
       var images = ["22/actions/dialog-cancel","22/actions/dialog-ok","48/status/dialog-information","48/status/dialog-error","48/status/dialog-warning"];
       var decoration = ["form/button","form/button-hovered","form/button-pressed","groupbox/groupbox","shadow/shadow-small","form/button-focused"];
-      
+
       for(var i=0;i<images.length;i++)
       {
         var p = qx.theme.manager.Icon.getInstance().getTheme().aliases.icon;
         qx.io.ImageLoader.load("resource/" + p + "/" +images[i]+".png",null,this);
       }
-      
+
       for(var i=0;i<decoration.length;i++)
       {
         var p = qx.theme.manager.Decoration.getInstance().getTheme().aliases.decoration;
         qx.io.ImageLoader.load("resource/" + p + "/" +decoration[i]+".png",null,this);
       }
-  
+
     },
-    
+
     /**
      * Shortcut for alert dialog
-     * @param message {String} The message to display
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
+     * @param {String} message The message to display
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
      */
     alert : function( message, callback, context )
     {
@@ -103,14 +106,14 @@ qx.Class.define("dialog.Dialog",
         "callback"  : callback || null,
         "context"   : context || null,
         "image"     : "icon/48/status/dialog-information.png"
-      })).show();      
+      })).show();
     },
 
     /**
      * Shortcut for error dialog
-     * @param message {String} The message to display
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
+     * @param {String} message The message to display
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
      */
     error : function( message, callback, context )
     {
@@ -119,14 +122,14 @@ qx.Class.define("dialog.Dialog",
         "callback"  : callback || null,
         "context"   : context || null,
         "image"     : "icon/48/status/dialog-error.png"
-      })).show();      
+      })).show();
     },
-    
+
     /**
      * Shortcut for warning dialog
-     * @param message {String} The message to display
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
+     * @param {String} message The message to display
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
      */
     warning : function( message, callback, context )
     {
@@ -135,14 +138,14 @@ qx.Class.define("dialog.Dialog",
         "callback"  : callback || null,
         "context"   : context || null,
         "image"     : "icon/48/status/dialog-warning.png"
-      })).show();      
+      })).show();
     },
-    
+
     /**
      * Shortcut for confirm dialog
-     * @param message {String} The message to display
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
+     * @param {String} message The message to display
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
      */
     confirm : function( message, callback, context )
     {
@@ -150,19 +153,19 @@ qx.Class.define("dialog.Dialog",
         "message"     : message,
         "callback"    : callback || null,
         "context"     : context || null
-      })).show();      
+      })).show();
     },
-    
+
     /**
      * Shortcut for prompt dialog.
      * The value argument was forgotten in the initial implementation and
-     * comes last for backwards compatibility. This might change in a future 
+     * comes last for backwards compatibility. This might change in a future
      * release.
-     * @param message {String} The message to display
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
-     * @param value {String} The default value of the prompt textfield
-     */    
+     * @param {String} message The message to display
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
+     * @param {String} value The default value of the prompt textfield
+     */
     prompt : function( message, callback, context, value )
     {
       (new dialog.Prompt({
@@ -170,17 +173,17 @@ qx.Class.define("dialog.Dialog",
         "callback"    : callback || null,
         "context"     : context || null,
         "value"       : value || null
-      })).show();      
+      })).show();
     },
-    
+
     /**
      * Shortcut for select dialog
-     * @param message {String} The message to display
-     * @param options {Array} Options to select from
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
-     * @param allowCancel {Boolean} Default: true
-     */    
+     * @param {String} message The message to display
+     * @param {Array} options Options to select from
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
+     * @param {Boolean} allowCancel Default: true
+     */
     select : function( message, options, callback, context, allowCancel )
     {
       (new dialog.Select({
@@ -189,15 +192,15 @@ qx.Class.define("dialog.Dialog",
         "options"     : options,
         "callback"    : callback || null,
         "context"     : context || null
-      })).show();      
+      })).show();
     },
-    
+
     /**
      * Shortcut for form dialog
-     * @param message {String} The message to display
-     * @param formData {Map} Map of form data. See {@link dialog.Form.formData}
-     * @param callback {Function} The callback function
-     * @param context {Object} The context to use with the callback function
+     * @param {String} message The message to display
+     * @param {Map} formData Map of form data. See {@link dialog.Form.formData}
+     * @param {Function} callback The callback function
+     * @param {Object} context The context to use with the callback function
      */
     form : function( message, formData, callback, context )
     {
@@ -207,25 +210,25 @@ qx.Class.define("dialog.Dialog",
         "allowCancel" : true,
         "callback"    : callback,
         "context"     : context || null
-      })).show();            
+      })).show();
     }
   },
-  
+
   /*
   *****************************************************************************
      CONSTRUCTOR
   *****************************************************************************
-  */   
-  
+  */
+
   /**
-   * @param properties {Map|String|undefined} If you supply a map, all the 
-   * corresponding properties will be set. If a string is given, use it 
+   * @param {Map|String|undefined} properties If you supply a map, all the
+   * corresponding properties will be set. If a string is given, use it
    * as to set the 'message' property.
    */
   construct: function( properties )
   {
     this.base(arguments);
-    
+
     /*
      * basic settings
      */
@@ -234,13 +237,13 @@ qx.Class.define("dialog.Dialog",
       'decorator'  : "shadow-popup"
     });
     this.setLayout( new qx.ui.layout.Grow() );
-    
+
     /*
      * automatically add to application's root
      */
     var root = qx.core.Init.getApplication().getRoot();
     root.add(this);
-    
+
     /*
      * make sure the dialog is above any opened window
      */
@@ -251,14 +254,14 @@ qx.Class.define("dialog.Dialog",
       maxWindowZIndex = Math.max(maxWindowZIndex, zIndex);
     }
     this.setZIndex( maxWindowZIndex +1 );
-    
+
     /*
      * make it a focus root
      */
     qx.ui.core.FocusHandler.getInstance().addRoot(this);
-    
-    /* 
-     * resize event 
+
+    /*
+     * resize event
      */
     this.getApplicationRoot().addListener("resize", function(e)
     {
@@ -268,9 +271,9 @@ qx.Class.define("dialog.Dialog",
         marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
       });
     }, this);
-    
-    /* 
-     * appear event 
+
+    /*
+     * appear event
      */
     this.addListener("appear", function(e)
     {
@@ -279,13 +282,13 @@ qx.Class.define("dialog.Dialog",
         marginTop: Math.round( ( qx.bom.Document.getHeight() -bounds.height ) / 2),
         marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
       });
-    }, this);   
-    
+    }, this);
+
     /*
      * create widget content
      */
     this._createWidgetContent();
-    
+
     /*
      * set properties if given
      */
@@ -300,48 +303,48 @@ qx.Class.define("dialog.Dialog",
     {
       this.setMessage(properties);
     }
-  },  
-  
+  },
+
   /*
   *****************************************************************************
      PROPERTIES
   *****************************************************************************
-  */     
+  */
   properties :
   {
-  
+
     /**
-     * Callback function that will be called when the user 
+     * Callback function that will be called when the user
      * has interacted with the widget. See sample callback
-     * method supplied in the source code of each dialog 
+     * method supplied in the source code of each dialog
      * widget.
      */
-    callback : 
+    callback :
     {
       check : "Function",
       nullable : true
     },
-    
+
     /**
      * The context for the callback function
      */
-    context : 
+    context :
     {
       check : "Object",
       nullable : true
-    },    
-    
+    },
+
     /**
      * A banner image/logo that is displayed on the widget,
      * if applicable
      */
-    image : 
+    image :
     {
       check : "String",
       nullable : true,
       apply : "_applyImage"
     },
-    
+
     /**
      * The message that is displayed
      */
@@ -350,8 +353,8 @@ qx.Class.define("dialog.Dialog",
       check : "String",
       nullable : true,
       apply : "_applyMessage"
-    }, 
-    
+    },
+
     /**
      * Whether to block the ui while the widget is displayed
      */
@@ -360,7 +363,7 @@ qx.Class.define("dialog.Dialog",
       check : "Boolean",
       init : true
     },
-    
+
     /**
      * The blocker's color
      */
@@ -369,7 +372,7 @@ qx.Class.define("dialog.Dialog",
       check : "String",
       init : "black"
     },
-    
+
     /**
      * The blocker's opacity
      */
@@ -378,7 +381,7 @@ qx.Class.define("dialog.Dialog",
       check : "Number",
       init : 0.5
     },
-    
+
     /**
      * Whether to allow cancelling the dialog
      */
@@ -388,75 +391,75 @@ qx.Class.define("dialog.Dialog",
       init : true,
       event : "changeAllowCancel"
     },
-    
+
     // overridden
     focusable :
     {
       refine : true,
       init : true
     }
-    
-    
+
+
   },
-  
+
   /*
   *****************************************************************************
      EVENTS
   *****************************************************************************
-  */    
-  events : 
-  {   
-    
+  */
+  events :
+  {
+
     /**
      * Dispatched when user clicks on the "OK" Button
      * @type String
     */
     "ok" : "qx.event.type.Event",
-   
+
    /**
      * Dispatched when user clicks on the "Cancel" Button
      * @type String
     */
     "cancel" : "qx.event.type.Event"
-   
-  },
-  
 
-  
+  },
+
+
+
   /*
   *****************************************************************************
      MEMBERS
   *****************************************************************************
-  */     
+  */
   members :
   {
-    
+
     /*
     ---------------------------------------------------------------------------
        "PRIVATE"
     ---------------------------------------------------------------------------
-    */  
-    
+    */
+
     __container : null,
 		__previousFocus : null,
-    
+
     /*
     ---------------------------------------------------------------------------
        "PROTECTED"
     ---------------------------------------------------------------------------
-    */      
-    
+    */
+
     _image : null,
     _message : null,
     _okButton : null,
-    _cancelButton : null,       
-    
+    _cancelButton : null,
+
     /*
     ---------------------------------------------------------------------------
        WIDGET LAYOUT
     ---------------------------------------------------------------------------
-    */  
-    
+    */
+
     // overridden
     // @todo implement child control logic
 //    _createChildControlImpl : function(id)
@@ -473,17 +476,17 @@ qx.Class.define("dialog.Dialog",
 //      }
 //
 //      return control || this.base(arguments, id);
-//    },    
-//    
+//    },
+//
     /**
-     * Create the content of the dialog. 
+     * Create the content of the dialog.
      * Extending classes must implement this method.
      */
     _createWidgetContent : function()
     {
       this.error("_createWidgetContent not implemented!");
-    },  
-    
+    },
+
     /**
      * Creates the default container (groupbox)
      * @todo make this themeable
@@ -496,21 +499,21 @@ qx.Class.define("dialog.Dialog",
       });
       this.add( this.__container );
       return this.__container;
-    },      
-    
+    },
+
     /**
      * Create a cancel button
      * @return {qx.ui.form.Button}
-     */    
+     */
     _createOkButton : function()
     {
       var okButton = this._okButton =  new qx.ui.form.Button(this.tr("OK"));
       okButton.setIcon("icon/22/actions/dialog-ok.png")
       okButton.setAllowStretchX(false);
-      okButton.addListener("execute", this._handleOk, this);  
+      okButton.addListener("execute", this._handleOk, this);
       return okButton;
     },
-    
+
     /**
      * Create a cancel button, which is hidden by default and will be shown
      * if allowCancel property is set to true.
@@ -521,13 +524,13 @@ qx.Class.define("dialog.Dialog",
       var cancelButton = this._cancelButton =  new qx.ui.form.Button(this.tr("Cancel"));
       cancelButton.setAllowStretchX(false);
       cancelButton.setIcon("icon/22/actions/dialog-cancel.png");
-      cancelButton.addListener("execute", this._handleCancel, this);  
+      cancelButton.addListener("execute", this._handleCancel, this);
       this.bind("allowCancel",cancelButton,"visibility",{
         converter : function( value )
         {
           return value ? "visible" : "excluded";
         }
-      });      
+      });
       return cancelButton;
     },
 
@@ -535,25 +538,25 @@ qx.Class.define("dialog.Dialog",
     ---------------------------------------------------------------------------
        APPLY METHODS
     ---------------------------------------------------------------------------
-    */ 
+    */
     _applyImage : function( value, old )
     {
       this._image.setSource( value );
       this._image.setVisibility( value ? "visible" : "excluded" );
-    }, 
-    
+    },
+
     _applyMessage : function( value, old )
     {
       this._message.setValue( value );
       this._message.setVisibility( value ? "visible" : "excluded" );
-    },     
-    
+    },
+
     /*
     ---------------------------------------------------------------------------
       API METHODS
     ---------------------------------------------------------------------------
-    */     
-    
+    */
+
     /**
      * Returns the widgets that is the container of the dialog
      * @return {qx.ui.core.LayoutItem}
@@ -566,7 +569,7 @@ qx.Class.define("dialog.Dialog",
       }
       return this.__container;
     },
-    
+
     /**
      * Show the widget. Overriding methods must call this parent method
      */
@@ -576,17 +579,17 @@ qx.Class.define("dialog.Dialog",
       {
         var root = this.getApplicationRoot();
         root.setBlockerOpacity( this.getBlockerOpacity() );
-        root.setBlockerColor( this.getBlockerColor() );  
+        root.setBlockerColor( this.getBlockerColor() );
         root.blockContent( this.getZIndex()-1 );
-      }    
+      }
       this.setVisibility("visible");
       this.__previousFocus = qx.ui.core.FocusHandler.getInstance().getActiveWidget();
       this.focus();
     },
-    
+
     /**
      * Hide the widget. Overriding methods must call this parent method
-     */    
+     */
     hide : function()
     {
       this.setVisibility("hidden");
@@ -603,13 +606,13 @@ qx.Class.define("dialog.Dialog",
         catch( e ){}
       }
     },
-    
+
     /*
     ---------------------------------------------------------------------------
        EVENT HANDLERS
     ---------------------------------------------------------------------------
-    */     
-    
+    */
+
     /**
      * Handle click on ok button. Calls callback with a "true" argument
      */
@@ -622,10 +625,10 @@ qx.Class.define("dialog.Dialog",
         this.getCallback().call(this.getContext(),true);
       }
       this.resetCallback();
-    },  
+    },
 
     /**
-     * Handle click on cancel button. Calls callback with 
+     * Handle click on cancel button. Calls callback with
      * an "undefined" argument
      */
     _handleCancel : function()
@@ -637,19 +640,19 @@ qx.Class.define("dialog.Dialog",
         this.getCallback().call(this.getContext());
       }
       this.resetCallback();
-    } 
+    }
   },
-  
+
   /*
   *****************************************************************************
      DEFERRED ACTION
   *****************************************************************************
-  */   
+  */
   defer : function()
   {
     /*
      * create shortcut methods for backward compatibility. This will
-     * be deprecated in a future release, please use only the 
+     * be deprecated in a future release, please use only the
      * dialog.Dialog.* methods
      */
     dialog.alert    = dialog.Dialog.alert;
