@@ -48,7 +48,6 @@ qx.Class.define("dialog.Dialog",
   */     
   statics :
   {  
-  
     /**
      * Returns a dialog instance by type
      * @param type {String} The dialog type to get
@@ -204,7 +203,8 @@ qx.Class.define("dialog.Dialog",
   {
     this.base(arguments);
     this.set({
-       'visibility': "hidden"
+      visibility: "hidden",
+      backgroundColor: "black"
     });
     this.setLayout( new qx.ui.layout.Grow() );
     /*
