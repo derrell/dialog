@@ -163,6 +163,7 @@ qx.Class.define("dialog.Form",
        * Add message label
        */
       this._message = new qx.ui.basic.Label();
+      this._message.setBackgroundColor("black");
       this._message.setRich(true);
       this._message.setMinWidth(200);
       this._message.setAllowStretchX(true);
@@ -172,6 +173,7 @@ qx.Class.define("dialog.Form",
        * Form container  
        */
       this._formContainer = new qx.ui.container.Composite;
+      this._formContainer.setBackgroundColor("black");
       this._formContainer.setLayout( new qx.ui.layout.Grow() );
       groupboxContainer.add( this._formContainer, {flex: 1} );
       
@@ -179,6 +181,7 @@ qx.Class.define("dialog.Form",
        * buttons pane
        */
       var buttonPane = new qx.ui.container.Composite;
+      buttonPane.setBackgroundColor("black");
       var bpLayout = new qx.ui.layout.HBox(5)
       bpLayout.setAlignX("center");
       buttonPane.setLayout( bpLayout );
@@ -636,6 +639,17 @@ qx.Class.define("dialog.Form",
 
     },
     
+    // overridden
+    _createOkButton : function()
+    {
+      // unlike our superclass, we do not add an appear listener to focus OK
+      var okButton = this._okButton =  new qx.ui.form.Button(this.tr("OK"));
+      okButton.setIcon("icon/22/actions/dialog-ok.png")
+      okButton.setAllowStretchX(false);
+      okButton.addListener("execute", this._handleOk, this);  
+      return okButton;
+    },
+
     /**
      * Hook for subclasses to do something with the form, for example
      * in order to attach bindings to the validation manager.
@@ -666,7 +680,9 @@ qx.Class.define("dialog.Form",
       this.hide();
       if( this.getCallback() )
       {
-        this.getCallback()( qx.util.Serializer.toNativeObject( this.getModel() ) );
+        this.getCallback().call(
+          this.getContext(),
+          qx.util.Serializer.toNativeObject( this.getModel() ) );
       }
       this.resetCallback();
     }

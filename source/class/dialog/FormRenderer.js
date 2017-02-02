@@ -138,6 +138,13 @@ qx.Class.define("dialog.FormRenderer",
          */
          this._row++;
         
+        /*
+         * focus the first item
+         */
+        if (i == 0)
+        {
+          widget.addListener("appear", widget.focus, widget);
+        }
       }
     },
 
