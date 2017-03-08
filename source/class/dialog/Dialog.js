@@ -48,6 +48,25 @@ qx.Class.define("dialog.Dialog",
   */     
   statics :
   {  
+    _appearances            : {},
+
+    /**
+     * Set appearance styles and icons to be used globally.
+     * 
+     * @param appearances {Map}
+     *   Map with the following optional members:
+     *     - okButtonAppearance
+     *     - okButtonIcon
+     *     - cancelButtonAppearance
+     *     - cancelButtonIcon
+     * 
+     *   Any that are not specified will use the hard-coded default values.
+     */
+    setGlobalAppearance : function(appearances)
+    {
+      dialog.Dialog._appearances = appearances;
+    },
+
     /**
      * Returns a dialog instance by type
      * @param type {String} The dialog type to get
@@ -480,7 +499,14 @@ qx.Class.define("dialog.Dialog",
     _createOkButton : function()
     {
       var okButton = this._okButton =  new qx.ui.form.Button(this.tr("OK"));
-      okButton.setIcon("icon/22/actions/dialog-ok.png")
+      okButton.setIcon(
+        dialog.Dialog._appearances.okButtonIcon ||
+          "icon/22/actions/dialog-ok.png")
+      if (dialog.Dialog._appearances.okButtonAppearance)
+      {
+        okButton.setAppearance(
+          dialog.Dialog._appearances.okButtonAppearance);
+      }
       okButton.setAllowStretchX(false);
       okButton.addListener("execute", this._handleOk, this);  
       this.addListener("appear",function(){
@@ -498,7 +524,14 @@ qx.Class.define("dialog.Dialog",
     {
       var cancelButton = this._cancelButton =  new qx.ui.form.Button(this.tr("Cancel"));
       cancelButton.setAllowStretchX(false);
-      cancelButton.setIcon("icon/22/actions/dialog-cancel.png");
+      cancelButton.setIcon(
+        dialog.Dialog._appearances.cancelButtonIcon ||
+          "icon/22/actions/dialog-cancel.png")
+      if (dialog.Dialog._appearances.cancelButtonAppearance)
+      {
+        cancelButton.setAppearance(
+          dialog.Dialog._appearances.cancelButtonAppearance);
+      }
       cancelButton.addListener("execute", this._handleCancel, this);  
       this.bind("allowCancel",cancelButton,"visibility",{
         converter : function( value )
