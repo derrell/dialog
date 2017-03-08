@@ -644,7 +644,14 @@ qx.Class.define("dialog.Form",
     {
       // unlike our superclass, we do not add an appear listener to focus OK
       var okButton = this._okButton =  new qx.ui.form.Button(this.tr("OK"));
-      okButton.setIcon("icon/22/actions/dialog-ok.png")
+      okButton.setIcon(
+        dialog.Dialog._appearances.okButtonIcon ||
+          "icon/22/actions/dialog-ok.png")
+      if (dialog.Dialog._appearances.okButtonAppearance)
+      {
+        okButton.setAppearance(
+          dialog.Dialog._appearances.okButtonAppearance);
+      }
       okButton.setAllowStretchX(false);
       okButton.addListener("execute", this._handleOk, this);  
       return okButton;
