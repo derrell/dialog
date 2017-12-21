@@ -2,10 +2,10 @@
 
    qooxdoo dialog library
   
-   http://qooxdoo.org/contrib/project#dialog
+   http://qooxdoo.org/contrib/catalog/#Dialog
   
    Copyright:
-     2007-2010 Christian Boulanger
+     2007-2014 Christian Boulanger
   
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
@@ -16,6 +16,7 @@
    *  Christian Boulanger (cboulanger)
   
 ************************************************************************ */
+/*global qx dialog*/
 
 /**
  * Form renderer renderer for {@link qx.ui.form.Form}. This is a 
@@ -102,6 +103,15 @@ qx.Class.define("dialog.FormRenderer",
           label.setRich(true);
           this._add( label,  {row: this._row, column: 0, colSpan : 2 } );
         }
+
+        /**
+         * If CheckBox, assign the whole width to the widget.
+         */
+        else if ( item instanceof qx.ui.form.CheckBox )
+        {
+            this._add( widget, {row: this._row, column:0, colSpan: 2 } );
+            this._getLayout().getCellWidget(this._row,0).setAlignX("left");
+        }
         
         /*
          * if the label is null, use the full width for the widget
@@ -128,6 +138,13 @@ qx.Class.define("dialog.FormRenderer",
          */
          this._row++;
         
+        /*
+         * focus the first item
+         */
+        if (i == 0)
+        {
+          widget.addListener("appear", widget.focus, widget);
+        }
       }
     },
 

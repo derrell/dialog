@@ -25,13 +25,14 @@
     "source-hybrid",
     "test",
     "test-source",
-    "translation"
+    "translation",
+    "info"
   ],
 
   "let" :
   {
     "APPLICATION"  : "dialog.demo",
-    "QOOXDOO_PATH" : "../../../../qooxdoo/1.5",
+    "QOOXDOO_PATH" : "../../qooxdoo",
     "QXTHEME"      : "dialog.demo.theme.Theme",
     "API_EXCLUDE"  : ["qx.test.*"],
     "LOCALES"      : [ "en","de","fr" ],

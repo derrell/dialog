@@ -2,10 +2,10 @@
 
    qooxdoo dialog library
   
-   http://qooxdoo.org/contrib/project#dialog
+   http://qooxdoo.org/contrib/catalog/#Dialog
   
    Copyright:
-     2007-2010 Christian Boulanger
+     2007-2014 Christian Boulanger
   
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
@@ -16,6 +16,7 @@
    *  Christian Boulanger (cboulanger)
   
 ************************************************************************ */
+/*global qx dialog*/
 
 /**
  * A wizard-type widget that constructs the wizard pages on-the-fly, using 
@@ -252,7 +253,6 @@ qx.Class.define("dialog.Wizard",
      * data model
      * @param pageData {Array} The new page data
      * @param old {Array} The old page data
-     * @return
      */
     _applyPageData : function ( pageData, old )
     {
@@ -372,7 +372,7 @@ qx.Class.define("dialog.Wizard",
       this.hide();
       if( this.getCallback() )
       {
-        this.getCallback()( qx.util.Serializer.toNativeObject( this.getModel() ) );
+        this.getCallback().call(this.getContext(), qx.util.Serializer.toNativeObject( this.getModel() ) );
       }
       this.resetCallback();
     }

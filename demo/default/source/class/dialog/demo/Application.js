@@ -2,10 +2,10 @@
 
    qooxdoo dialog library
   
-   http://qooxdoo.org/contrib/project#dialog
+   http://qooxdoo.org/contrib/catalog/#Dialog
   
    Copyright:
-     2007-2010 Christian Boulanger
+     2007-2014 Christian Boulanger
   
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
@@ -16,19 +16,16 @@
    *  Christian Boulanger (cboulanger)
   
 ************************************************************************ */
-
-/* ************************************************************************
-#asset(dialog/*)
-#require(dialog.Dialog)
-************************************************************************ */
+/*global qx dialog*/
 
 /**
  * This is the main application class of your custom application "dialog"
+ * @asset(dialog/*)
+ * @require(dialog.Dialog)
  */
 qx.Class.define("dialog.demo.Application",
 {
   extend : qx.application.Standalone,
-
 
   /*
   *****************************************************************************
@@ -96,6 +93,14 @@ qx.Class.define("dialog.demo.Application",
          {
            label : "Login",
            method : "createLogin"
+         },             
+         {
+           label : "Progress",
+           method : "createProgress"
+         },             
+         {
+           label : "Progress with Log",
+           method : "createProgressWithLog"
          }
        ];
     
@@ -280,11 +285,24 @@ qx.Class.define("dialog.demo.Application",
              { 'label' : "ln -s *" }, 
              { 'label' : "rm -Rf /" }
            ]
-        }
+        },
+        'save_details' : {
+            'type' : "Checkbox",
+            'label' : "Save form details",
+            'value' : true
+        },
+        "executeDate" : {
+          "type" : "datefield",
+          "dateFormat" : new qx.util.format.DateFormat("dd.MM.yyyy HH:mm"),
+          "value" : new Date(),
+          "label" : "Execute At"
+       }
       };
+      var _this = this;
       dialog.Dialog.form("Please fill in the form",formData, function( result )
       {
-        dialog.Dialog.alert("Thank you for your input:" + qx.util.Json.stringify(result).replace(/\\/g,"") );
+        dialog.Dialog.alert("Thank you for your input. See log for result.");
+        _this.debug(qx.util.Serializer.toJson(result));
       }
     );      
 //    (new dialog.Form({
@@ -351,6 +369,10 @@ qx.Class.define("dialog.demo.Application",
                "required" : true,
                "validator" : qx.util.Validate.email()
              }
+           },
+           "birthday" : {
+             "type" : "datefield",
+             "label": "Birthday"             
            }
          }
        },
@@ -396,7 +418,8 @@ qx.Class.define("dialog.demo.Application",
         pageData    : pageData, 
         allowCancel : true,
         callback    : function( map ){
-          dialog.Dialog.alert("Thank you for your input:" + qx.util.Json.stringify(map).replace(/\\/g,"") );
+          dialog.Dialog.alert("Thank you for your input. See log for result.");
+          this.debug(qx.util.Serializer.toJson(map));
         },
         context     : this
       });
@@ -411,40 +434,104 @@ qx.Class.define("dialog.demo.Application",
       var loginWidget = new dialog.Login({
         image       : "dialog/logo.gif", 
         text        : "Please log in, using 'demo'/'demo'",
-        callback    : this.sampleCallbackFunc,
-        context     : this
+        checkCredentials : this.checkCredentials,
+        callback    : this.finalCallback,
+        showForgotPassword : true,
+        forgotPasswordHandler : function(){window.alert("Too bad. I cannot remember it either.");}
       });
+      
+      // you can optionally attach event listeners, for example to 
+      // do some animation (for example, an Mac OS-like "shake" effect)
       loginWidget.addListener("loginSuccess", function(e){
-        dialog.Dialog.alert( "You are now logged in. Or at least we pretend." );
+        // do something to indicated that the user has logged in!
       });
       loginWidget.addListener("loginFailure", function(e){
-        dialog.Dialog.alert(e.getData());
+       // User rejected! Shake your login widget!
       });
       loginWidget.show();
     },
     
     /**
-    * Sample callback function that takes the username, password and
-    * another callback function as parameters. The passed function
-    * is called with a boolean value (true=authenticated, false=
-    * authentication failed) and a string value which contains 
-    * an error message like so: 
-    * callback.call( context, {Boolean} result, {String} message);
+    * Sample asyncronous function for checking credentials that takes the 
+    * username, password and a callback function as parameters. After performing
+    * the authentication, the callback is called with the result, which should
+    * be undefined or null if successful, and the error message if the 
+    * authentication failed. If the problem was not the authentication, but some
+    * other exception, you could pass an error object.
     * @param username {String}
     * @param password {String}
-    * @param callback {Function} The callback function
-    * @param context {Object} The execution context
+    * @param callback {Function} The callback function that needs to be called with
+    * (err, data) as arguments
     */    
-   sampleCallbackFunc : function( username, password, callback, context )
+   checkCredentials : function( username, password, callback )
    {
       if ( username == "demo" && password == "demo" )
       {
-        callback.call( context, true );
+        callback( null, username);
       }
       else
       {
-        callback.call( context, false, "Wrong password!" );
+        callback( "Wrong username or password!" );
       }
-    }    
+    },
+    
+    /**
+     * Sample final callback to react on the result of the authentication
+     * @param err {String|Error|undefined|null}
+     */
+    finalCallback : function(err, data)
+    {
+      if( err)
+      {
+        dialog.Dialog.alert( err );
+      }
+      else
+      {  
+        dialog.Dialog.alert( "User '" + data + "' is now logged in. Or at least we pretend." );
+      }
+    },
+    
+    createProgress : function()
+    {
+       var progressWidget = new dialog.Progress();
+       progressWidget.show();
+  
+       var counter = 0;
+       (function incrementProgress()
+       {
+          progressWidget.set({
+           progress : counter,
+           message  : counter + "% completed"
+          });
+          if( counter++ == 100 )return;
+          qx.lang.Function.delay(incrementProgress,100);
+      })();
+    },    
+    
+    createProgressWithLog : function()
+    {
+      var progressWidget = new dialog.Progress({
+          showLog : true,
+          okButtonText : "Continue"
+       });
+       progressWidget.show();
+  
+       var counter = 0;
+       (function textProgress()
+       {
+          progressWidget.set({
+           progress : counter,
+           message  : counter + "% completed"
+          });
+  
+          if ( counter % 10 == 0 )
+          {
+           progressWidget.setNewLogText( counter + "% completed" );
+          }
+  
+          if( counter++ == 100 )return;
+          qx.lang.Function.delay(textProgress,100);
+      })();
+    }
   }
 });

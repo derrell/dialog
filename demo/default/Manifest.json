@@ -4,21 +4,21 @@
     "name" : "Dialog Demo",
 
     "summary" : "Dialog Demo",
-    "description" : "This is a demo for the dialog widgets, called from client code",
+    "description" : "This is a demo for the dialog widgets",
     
-    "homepage" : "http://demo.qooxdoo.org/contrib/Dialog",
+    "homepage" : "https://github.com/cboulanger/qx-contrib-Dialog",
 
     "license" : "LGPL/EPL",
     "authors" : 
     [
       {
         "name" : "Christian Boulanger (cboulanger)",
-        "email" : "christian.boulanger@qxtransformer.org"
+        "email" : "info@bibliograph.org"
       }
     ],
 
-    "version" : "trunk",
-    "qooxdoo-versions": ["1.0","1.2","1.3","1.4","1.5"]
+    "version" : "1.1",
+    "qooxdoo-versions": ["2.0","2.1","3.0","3.5","4.0"]
   },
   
   "provides" : 

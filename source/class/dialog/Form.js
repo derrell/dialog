@@ -2,10 +2,10 @@
 
    qooxdoo dialog library
   
-   http://qooxdoo.org/contrib/project#dialog
+   http://qooxdoo.org/contrib/catalog/#Dialog
   
    Copyright:
-     2007-2010 Christian Boulanger
+     2007-2014 Christian Boulanger
   
    License:
      LGPL: http://www.gnu.org/licenses/lgpl.html
@@ -16,16 +16,13 @@
    *  Christian Boulanger (cboulanger)
   
 ************************************************************************ */
-
-
-/* ************************************************************************
-#require(dialog.FormRenderer)
-#require(qx.util.Serializer)
-#require(qx.util.Validate)
-************************************************************************ */
+/*global qx dialog*/
 
 /**
  * A dialog with a form that is constructed on-the-fly
+ * @require(dialog.FormRenderer)
+ * @require(qx.util.Serializer)
+ * @require(qx.util.Validate)
  */
 qx.Class.define("dialog.Form",
 {
@@ -45,6 +42,7 @@ qx.Class.define("dialog.Form",
      *   ComboBox
      *   SelectBox
      *   RadioGroup
+     *   CheckBox
      * 
      * <pre>
      * {
@@ -104,6 +102,44 @@ qx.Class.define("dialog.Form",
       check : "Integer",
       nullable : false,
       init : 100
+    },
+
+    /**
+     * Function to call to create and configure a form renderer. If null, a
+     * single-column form renderer is automatically instantiated and
+     * configured. The function is passed a single argument, the form object.
+     */
+    setupFormRendererFunction :
+    {
+      check : "Function",
+      nullable : true,
+      init : null
+    },
+
+    /**
+     * Function to call just before creating the form's input fields. This
+     * allows additional, non-form widgets to be added. The function is called
+     * one one argument: the container in which the form fields should be
+     * placed.
+     */
+    beforeFormFunction :
+    {
+      check : "Function",
+      nullabel : true,
+      init : null
+    },
+
+    /**
+     * Function to call just after creating the form's input fields. This
+     * allows additional, non-form widgets to be added. The function is called
+     * one one argument: the container in which the form fields should be
+     * placed.
+     */
+    afterFormFunction :
+    {
+      check : "Function",
+      nullabel : true,
+      init : null
     }
   },
   
@@ -124,7 +160,7 @@ qx.Class.define("dialog.Form",
   */     
   members :
   {
-    
+
     /*
     ---------------------------------------------------------------------------
        PRIVATE MEMBERS
@@ -145,51 +181,100 @@ qx.Class.define("dialog.Form",
     /**
      * Create the main content of the widget
      */
-    _createWidgetContent : function()
+    _createWidgetContent : function(properties)
     {      
+      /*
+       * Handle properties that must be set before _applyFormData
+       */
+      if (properties.setupFormRendererFunction)
+      {
+        this.setSetupFormRendererFunction(properties.setupFormRendererFunction);
+      }
 
       /*
        * groupbox
        */
       var groupboxContainer = new qx.ui.groupbox.GroupBox().set({
-        contentPadding: [16, 16, 16, 16]
+        contentPadding  : [ 16, 16, 16, 16 ],
+        backgroundColor : "background-application"
       });
+      var decorator = new qx.ui.decoration.Decorator();
+      decorator.set({
+        shadowColor       : "dialog-shadow",
+        shadowLength      : 0,
+        shadowBlurRadius  : 30
+      });
+      this.setDecorator(decorator);
       groupboxContainer.setLayout( new qx.ui.layout.VBox(10) );
       this.add( groupboxContainer );
 
-      var hbox = new qx.ui.container.Composite;
-      hbox.setLayout( new qx.ui.layout.HBox(10) );
+      var hbox = new qx.ui.container.Composite;      
+      hbox.set({
+        layout          : new qx.ui.layout.HBox(10),
+        backgroundColor : "background-application"
+      })
       groupboxContainer.add( hbox );
+      groupboxContainer.setUserData("messageHBox", hbox);
       
       /*
        * Add message label
        */
       this._message = new qx.ui.basic.Label();
-      this._message.setRich(true);
-      this._message.setMinWidth(200);
-      this._message.setAllowStretchX(true);
+      this._message.set({
+        font            : "bold",
+        backgroundColor : "background-application",
+        rich            : true,
+        minWidth        : 200,
+        allowStretchX   : true
+      });      
       hbox.add( this._message, {flex:1} );    
       
+      /*
+       * If requested, call the before-form function to add some fields
+       */
+      var f;
+      if (typeof properties.beforeFormFunction == "function")
+      {
+        f = properties.beforeFormFunction.bind(properties.context);
+        f(groupboxContainer);
+      }
+
       /* 
        * Form container  
        */
-      this._formContainer = new qx.ui.container.Composite;
+      this._formContainer = new qx.ui.container.Composite;      
+      this._formContainer.set({
+        font : "bold"
+      });
       this._formContainer.setLayout( new qx.ui.layout.Grow() );
       groupboxContainer.add( this._formContainer, {flex: 1} );
       
+      /*
+       * If requested, call the after-form function to add some fields
+       */
+      if (typeof properties.afterFormFunction == "function")
+      {
+        f = properties.afterFormFunction.bind(properties.context);
+        f(groupboxContainer);
+      }
+
       /*
        * buttons pane
        */
       var buttonPane = new qx.ui.container.Composite;
       var bpLayout = new qx.ui.layout.HBox(5)
       bpLayout.setAlignX("center");
-      buttonPane.setLayout( bpLayout );
+      buttonPane.set({
+        font            : "bold",
+        backgroundColor : "background-application",
+        layout          : bpLayout
+      });
       groupboxContainer.add(buttonPane);
       
       /* 
        * Ok Button 
        */
-      var okButton = this._createOkButton();
+      var okButton = this._createOkButton();      
       buttonPane.add( okButton );   
       
       /* 
@@ -209,7 +294,7 @@ qx.Class.define("dialog.Form",
     /**
      * Constructs the form on-the-fly
      * @param formData {Map} The form data map
-     * @param old {Map} The old value
+     * @param old {Map|null} The old value
      * 
      * @lint ignoreDeprecated(alert,eval)
      */
@@ -250,22 +335,26 @@ qx.Class.define("dialog.Form",
       }
       
       /*
-       * if a model doesn't exist, create it from the
-       * form data
+       * if a model exist, dispose it first
        */
-      if ( ! this.getModel() )  
+      if ( this.getModel() )  
       {
-        var modelData = {};
-        for ( var key in formData )
-        {
-          modelData[key] = formData[key].value !== undefined 
-                            ? formData[key].value
-                            : null;
-        }
-        var model = qx.data.marshal.Json.createModel( modelData );
-        this.setModel( model );
+        this.getModel().removeAllBindings();
+        this.getModel().dispose();
       }
       
+      /*
+       * set up model
+       */
+      var modelData = {};
+      for ( var key in formData )
+      {
+        modelData[key] = formData[key].value !== undefined 
+                          ? formData[key].value
+                          : null;
+      }
+      var model = qx.data.marshal.Json.createModel( modelData );
+      this.setModel( model );
       
       /*
        * create new form and form controller
@@ -305,6 +394,13 @@ qx.Class.define("dialog.Form",
           case "textfield":
             formElement = new qx.ui.form.TextField();
             formElement.setLiveUpdate(true);
+            break;
+			
+          case "datefield":
+            formElement = new qx.ui.form.DateField();
+			if (fieldData.dateFormat != null) {
+				formElement.setDateFormat(fieldData.dateFormat);
+			}
             break;
             
           case "passwordfield":
@@ -347,6 +443,10 @@ qx.Class.define("dialog.Form",
             formElement = new qx.ui.form.TextField(); // dummy
             formElement.setUserData("excluded",true);
             break;
+
+          case "checkbox":
+            formElement = new qx.ui.form.CheckBox(fieldData.label);
+            break;
             
           default:
             this.error("Invalid form field type:" + fieldData.type);
@@ -369,6 +469,7 @@ qx.Class.define("dialog.Form",
           case "textfield":
           case "passwordfield":
           case "combobox":
+	  case "datefield":
             this._formController.addTarget( 
               formElement, "value", key, true, 
               null,
@@ -380,6 +481,14 @@ qx.Class.define("dialog.Form",
                 }
               }
             );  
+            break;
+
+          /**
+           * checkbox form element
+           */
+          case "checkbox":
+            this._formController.addTarget(
+                formElement, "value", key, true, null);
             break;
 
           /*
@@ -568,6 +677,34 @@ qx.Class.define("dialog.Form",
         }
         
         /*
+         * tooltip
+         */
+        if ( fieldData.toolTipText !== undefined )
+        {
+          formElement.setToolTipText( fieldData.toolTipText );
+        }
+        
+        /*
+         * generic property setter
+         */
+        if ( typeof fieldData.properties == "object" )
+        {
+          formElement.set( fieldData.properties );
+        }
+
+        /*
+         * generic userdata settings
+         */
+        if ( typeof fieldData.userdata == "object" )
+        {
+          Object.keys( fieldData.userdata ).forEach(
+            function(key)
+            {
+              formElement.setUserData(key, fieldData.userdata[key]);
+            });
+        }
+
+        /*
          * events
          */
         if ( qx.lang.Type.isObject( fieldData.events ) )
@@ -576,7 +713,8 @@ qx.Class.define("dialog.Form",
           {  
             try
             {
-              var func = eval("("+fieldData.events[type]+")"); // eval is evil, I know.
+//              var func = eval("("+fieldData.events[type]+")"); // eval is evil, I know.
+              var func = fieldData.events[type];
               if ( ! qx.lang.Type.isFunction(func) )
               {
                 throw new Error();
@@ -600,12 +738,27 @@ qx.Class.define("dialog.Form",
       /*
        * render the form
        */
-      var view = new dialog.FormRenderer( this._form );
-      view.getLayout().setColumnFlex(0, 0);
-      view.getLayout().setColumnMaxWidth(0, this.getLabelColumnWidth() ); 
-      view.getLayout().setColumnFlex(1, 1);
-      view.setAllowGrowX(true);
-      this._formContainer.add( view );
+      var setupFormRenderer;
+
+      setupFormRenderer = this.getSetupFormRendererFunction();
+      if (! setupFormRenderer)
+      {
+        setupFormRenderer = function(form)
+        {
+          var view;
+
+          view = new dialog.FormRenderer( form );
+          view.getLayout().setColumnFlex(0, 0);
+          view.getLayout().setColumnMaxWidth(0, this.getLabelColumnWidth() ); 
+          view.getLayout().setColumnFlex(1, 1);
+          view.setAllowGrowX(true);
+          view.setBackgroundColor("background-application");
+
+          return view;
+        };
+      }
+
+      this._formContainer.add( setupFormRenderer.bind(this)(this._form) );
       
       /*
        * validate the form
@@ -614,6 +767,25 @@ qx.Class.define("dialog.Form",
 
     },
     
+    // overridden
+    _createOkButton : function()
+    {
+      // unlike our superclass, we do not add an appear listener to focus OK
+      var okButton = this._okButton =  new qx.ui.form.Button(this.tr("OK"));
+      okButton.setIcon(
+        dialog.Dialog._appearances.okButtonIcon ||
+          "icon/22/actions/dialog-ok.png");
+      
+      if (dialog.Dialog._appearances.okButtonAppearance)
+      {
+        okButton.setAppearance(
+          dialog.Dialog._appearances.okButtonAppearance);
+      }
+      okButton.setAllowStretchX(false);      
+      okButton.addListener("execute", this._handleOk, this);  
+      return okButton;
+    },
+
     /**
      * Hook for subclasses to do something with the form, for example
      * in order to attach bindings to the validation manager.
@@ -644,7 +816,9 @@ qx.Class.define("dialog.Form",
       this.hide();
       if( this.getCallback() )
       {
-        this.getCallback()( qx.util.Serializer.toNativeObject( this.getModel() ) );
+        this.getCallback().call(
+          this.getContext(),
+          qx.util.Serializer.toNativeObject( this.getModel() ) );
       }
       this.resetCallback();
     }
