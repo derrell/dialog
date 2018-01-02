@@ -125,7 +125,7 @@ qx.Class.define("dialog.Form",
     beforeFormFunction :
     {
       check : "Function",
-      nullabel : true,
+      nullable : true,
       init : null
     },
 
@@ -138,7 +138,7 @@ qx.Class.define("dialog.Form",
     afterFormFunction :
     {
       check : "Function",
-      nullabel : true,
+      nullable : true,
       init : null
     }
   },

@@ -160,7 +160,7 @@ qx.Class.define("dialog.Confirm",
 
       layout.setColumnAlign(0, "left", "top");
       layout.setColumnAlign(1, "left", "middle");
-      layout.setRowAlign(1, "center", "baseline");
+      layout.setRowAlign(1, "center", "bottom");
 
 
       // Set column widths
