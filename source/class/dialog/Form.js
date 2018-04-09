@@ -43,6 +43,7 @@ qx.Class.define("dialog.Form",
      *   SelectBox
      *   RadioGroup
      *   CheckBox
+     *   Spinner
      * 
      * <pre>
      * {
@@ -71,8 +72,17 @@ qx.Class.define("dialog.Form",
      *     'options' : [
      *       { 'label' : "ln -s *" }, 
      *       { 'label' : "rm -Rf /" }
-     *     ]
-     *   }   
+     *     ],
+     *   },
+     *   "quantity" : {
+     *    'type' : "Spinner",
+     *    'label' : "How many?",
+     *    'properties' : {
+     *      'minimum' : 1,
+     *      'maximum' : 20,
+     *      'maxWidth' : 100
+     *    }
+     *   }
      * }
      * </pre>
      */
@@ -449,6 +459,10 @@ qx.Class.define("dialog.Form",
             formElement = new qx.ui.form.CheckBox(fieldData.label);
             break;
             
+          case "spinner":
+            formElement = new qx.ui.form.Spinner();
+            break;
+
           default:
             this.error("Invalid form field type:" + fieldData.type);
   
@@ -567,6 +581,11 @@ qx.Class.define("dialog.Form",
             );
             
             break;            
+
+          case "spinner":
+            this._formController.addTarget(
+                formElement, "value", key, true, null);
+            break;
         }
         
         /*
