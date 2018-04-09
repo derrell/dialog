@@ -101,7 +101,8 @@ qx.Class.define("dialog.Form",
     {
       check : "Integer",
       nullable : false,
-      init : 100
+      init : 100,
+      apply : "_applyLabelColumnWidth"
     },
 
     /**
@@ -767,6 +768,26 @@ qx.Class.define("dialog.Form",
 
     },
     
+    /**
+     * Constructs the form on-the-fly
+     * @param formData {Map} The form data map
+     * @param old {Map|null} The old value
+     */
+    _applyLabelColumnWidth : function(width, old)
+    {
+      var view;
+
+      // If the form renderer is the default one and has already been applied...
+      if (! this.getSetupFormRendererFunction() &&
+          this._formContainer &&
+          this._formContainer.getChildren().length > 0)
+      {
+        view = this._formContainer.getChildren()[0];
+        view.getLayout().setColumnMaxWidth(0, width);
+      }
+    },
+
+
     // overridden
     _createOkButton : function()
     {
