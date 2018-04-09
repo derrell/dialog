@@ -66,7 +66,7 @@ qx.Class.define("dialog.Confirm",
     {
       check : "String",
       nullable : true,
-      init : "icon/22/actions/dialog-ok.png",
+      // init : "icon/22/actions/dialog-ok.png",
       event : "changeYesButtonIcon"
     },    
     
@@ -88,7 +88,7 @@ qx.Class.define("dialog.Confirm",
     {
       check : "String",
       nullable : true,
-      init : "icon/22/actions/dialog-cancel.png",
+      // init : "icon/22/actions/dialog-cancel.png",
       event : "changeNoButtonIcon"
     },
     
@@ -134,50 +134,94 @@ qx.Class.define("dialog.Confirm",
        * groupbox
        */
       var groupboxContainer = new qx.ui.groupbox.GroupBox().set({
-        contentPadding: [16, 16, 16, 16]
+        margin          : [ 15, 15, 15, 15 ],
+        maxWidth        : 600,
+        maxHeight       : 130,
+        backgroundColor : "dialog-background"
       });
+      var decorator = new qx.ui.decoration.Decorator();
+      decorator.set({
+        shadowColor       : "dialog-shadow",
+        shadowLength      : 0,
+        shadowBlurRadius  : 30
+      });
+      this.setDecorator(decorator);
+      
       groupboxContainer.setLayout( new qx.ui.layout.VBox(10) );
       this.add( groupboxContainer );
 
       var hbox = new qx.ui.container.Composite;
-      hbox.setLayout( new qx.ui.layout.HBox(10) );
+      hbox.setBackgroundColor("dialog-background");
+      // Create a layout for dialog alert
+      var layout = new qx.ui.layout.Grid(10, 5);
+      layout.setSpacingX(21);
+      layout.setRowFlex(0, 1);// make row 0 flexible
+      hbox.setLayout(layout);
+
+      layout.setColumnAlign(0, "left", "top");
+      layout.setColumnAlign(1, "left", "middle");
+      layout.setRowAlign(1, "center", "bottom");
+
+
+      // Set column widths
+      [ 95, 410 ].forEach(
+        function(width, index)
+        {
+          layout.setColumnWidth(index, width);
+        });
+
+      // Set row height
+      layout.setRowHeight(0, 45);
+      layout.setRowHeight(1, 25);
+
       groupboxContainer.add( hbox );
       
       /*
        * add image 
        */
-      this._image = new qx.ui.basic.Image();
-      this._image.setVisibility("excluded");
-      hbox.add( this._image );
+      this._image = new qx.ui.basic.Image(this.getImage() || "dialog/notification-icon.png");
+      this._image.renderLayout( 0, 0, 48, 48 );
+      hbox.add( this._image, { row : 0, column : 0, rowSpan : 2 });
       
       /*
        * Add message label
        */
       this._message = new qx.ui.basic.Label();
-      this._message.setRich(true);
-      this._message.setWidth(200);
-      this._message.setAllowStretchX(true);
-      hbox.add( this._message, {flex:1} );    
+      this._message.set({
+        backgroundColor : "dialog-background",
+        rich            : true,        
+        allowStretchX   : true
+      }); 
+      hbox.add( this._message, { row : 0, column : 1 } );
       
       /* 
        * Yes button 
        */
-      var yesButton = this._yesButton =  new qx.ui.form.Button;
-      yesButton.setAllowStretchX(true);
+      var yesButton = this._yesButton =  new qx.ui.form.Button;      
+      yesButton.set({
+        allowStretchX : true,
+        width         : 70,
+        height        : 25
+      });
       yesButton.addListener("execute", this._handleYes, this );
       this.bind("yesButtonLabel", yesButton, "label");
       this.bind("yesButtonIcon",  yesButton, "icon");
-      yesButton.setLabel( this.tr("yes") );
+      yesButton.setLabel( this.tr("Yes") );
       
       /* 
        * No button 
        */
-      var noButton = this._noButton = new qx.ui.form.Button;
-      noButton.setAllowStretchX(true);
+      var noButton = this._noButton = new qx.ui.form.Button;      
+      noButton.set({
+        allowStretchX : true,
+        width         : 70,
+        height        : 25,
+        marginLeft    : 10
+      });
       noButton.addListener("execute", this._handleNo, this );
       this.bind("noButtonLabel",noButton, "label" );
       this.bind("noButtonIcon", noButton, "icon" );
-      noButton.setLabel( this.tr("no") );
+      noButton.setLabel( this.tr("No") );
       
       /* 
        * Cancel Button 
@@ -188,14 +232,16 @@ qx.Class.define("dialog.Confirm",
        * buttons pane
        */
       var buttonPane = new qx.ui.container.Composite;
-      var bpLayout = new qx.ui.layout.HBox(5)
+      var bpLayout = new qx.ui.layout.HBox(5);
       bpLayout.setAlignX("center");
-      buttonPane.setLayout( bpLayout );
+      buttonPane.set({
+        layout          : bpLayout,
+        backgroundColor : "dialog-background"
+      });
       buttonPane.add( yesButton );
       buttonPane.add( noButton );
       buttonPane.add( cancelButton );
-      groupboxContainer.add(buttonPane);
-        
+      hbox.add(buttonPane, { row : 1, column : 1 });
     },
     
     /*

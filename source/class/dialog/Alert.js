@@ -1,4 +1,4 @@
-/* ************************************************************************
+  /* ************************************************************************
 
    qooxdoo dialog library
   
@@ -49,30 +49,67 @@ qx.Class.define("dialog.Alert",
       /*
        * groupbox
        */
-      var groupboxContainer = new qx.ui.groupbox.GroupBox().set({
-        contentPadding: [16, 16, 16, 16]
+      var groupboxContainer = new qx.ui.groupbox.GroupBox().set({        
+        margin          : [ 15, 15, 15, 15 ],
+        maxWidth        : 600,
+        maxHeight       : 130,
+        backgroundColor : "dialog-background"
       });
+      
       groupboxContainer.setLayout( new qx.ui.layout.VBox(10) );
       this.add( groupboxContainer );
 
       var hbox = new qx.ui.container.Composite;
-      hbox.setLayout( new qx.ui.layout.HBox(10) );
+      var decorator = new qx.ui.decoration.Decorator();
+      decorator.set({
+        shadowColor: "dialog-shadow",
+        shadowLength: 0,
+        shadowBlurRadius: 30
+      });
+      this.setDecorator(decorator);      
+      hbox.setBackgroundColor("dialog-background");      
+      
+      // Create a layout for dialog alert
+      var layout = new qx.ui.layout.Grid(10, 5);
+      layout.setSpacingX(18);    
+      layout.setRowFlex(0, 1);    // make row 0 flexible
+
+      layout.setColumnAlign(0, "center", "middle");      
+      layout.setRowAlign(1, "center", "middle");
+
+      // Set column widths
+      [ 90, 410 ].forEach(
+        function(width, index)
+        {
+          layout.setColumnWidth(index, width);
+        });
+
+      // Set row height
+      layout.setRowHeight(0, 45);
+      layout.setRowHeight(1, 25);
+
+      hbox.setLayout(layout);
       groupboxContainer.add( hbox );
       
       /*
        * add image 
        */
-      this._image = new qx.ui.basic.Image(this.getImage() || "icon/48/status/dialog-information.png" );
-      hbox.add( this._image );
+      this._image = new qx.ui.basic.Image(this.getImage() || "dialog/notification-icon.png" );
+      //this._image.renderLayout( 0, 0, 48, 48 );
+      hbox.add( this._image, { row : 0, column : 0, rowSpan : 2 } );
       
       /*
        * Add message label
        */
       this._message = new qx.ui.basic.Label();
-      this._message.setRich(true);
-      this._message.setWidth(200);
-      this._message.setAllowStretchX(true);
-      hbox.add( this._message, {flex:1} );    
+      this._message.set({
+        backgroundColor : "dialog-background",
+        rich            : true,
+        width           : 200,
+        marginTop       : 5,
+        allowStretchX   : true
+      });      
+      hbox.add( this._message, { row : 0, column : 1 } );    
       
       /* 
        * Ok Button 
@@ -81,13 +118,8 @@ qx.Class.define("dialog.Alert",
       
       /*
        * buttons pane
-       */
-      var buttonPane = new qx.ui.container.Composite;
-      var bpLayout = new qx.ui.layout.HBox();
-      bpLayout.setAlignX("center");
-      buttonPane.setLayout(bpLayout);
-      buttonPane.add(okButton);
-      groupboxContainer.add(buttonPane);
+       */      
+      hbox.add(okButton, { row : 1, column : 1 });
 
       /*
        * focus OK button on appear

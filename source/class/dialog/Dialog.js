@@ -28,7 +28,7 @@
  * @ignore(dialog.select)
  * @asset(qx/icon/${qx.icontheme}/22/actions/dialog-cancel.png)
  * @asset(qx/icon/${qx.icontheme}/22/actions/dialog-ok.png)
- * @asset(qx/icon/${qx.icontheme}/48/status/dialog-information.png)
+ * @asset(qx/icon/${qx.icontheme}/48/status/dialog-information.png) 
  * @asset(qx/icon/${qx.icontheme}/48/status/dialog-error.png)
  * @asset(qx/icon/${qx.icontheme}/48/status/dialog-warning.png)
  */
@@ -98,7 +98,7 @@ qx.Class.define("dialog.Dialog",
         "message"   : message,
         "callback"  : callback || null,
         "context"   : context || null,
-        "image"     : "icon/48/status/dialog-information.png"
+        "image"     : "dialog/notification-icon.png"
       })).show();      
     },
 
@@ -145,7 +145,8 @@ qx.Class.define("dialog.Dialog",
       (new dialog.Confirm({
         "message"     : message,
         "callback"    : callback || null,
-        "context"     : context || null
+        "context"     : context || null,
+        "image"       : "dialog/notification-icon.png"
       })).show();      
     },
     
@@ -198,7 +199,7 @@ qx.Class.define("dialog.Dialog",
     form : function( message, formData, callback, context )
     {
       (new dialog.Form({
-         "message"    : message,
+        "message"     : message,
         "formData"    : formData,
         "allowCancel" : true,
         "callback"    : callback,
@@ -222,9 +223,9 @@ qx.Class.define("dialog.Dialog",
   {
     this.base(arguments);
     this.set({
-      visibility: "hidden",
-      backgroundColor: "black"
-    });
+      visibility      : "hidden",
+      backgroundColor : "background-application"
+    });    
     this.setLayout( new qx.ui.layout.Grow() );
     /*
      * automatically add to application's root
@@ -246,10 +247,12 @@ qx.Class.define("dialog.Dialog",
     root.addListener("resize", function(e)
     {
       var bounds = this.getBounds();
-      this.set({
-        marginTop: Math.round( ( qx.bom.Document.getHeight() -bounds.height ) / 2),
-        marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
-      });
+      if (bounds) {
+        this.set({
+          marginTop: Math.round( ( qx.bom.Document.getHeight() -bounds.height ) / 2),
+          marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
+        });
+      }
     }, this);
     
     /* 
@@ -258,16 +261,18 @@ qx.Class.define("dialog.Dialog",
     this.addListener("appear", function(e)
     {
       var bounds = this.getBounds();
-      this.set({
-        marginTop: Math.round( ( qx.bom.Document.getHeight() -bounds.height ) / 2),
-        marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
-      });
+      if (bounds) {
+        this.set({
+          marginTop: Math.round( ( qx.bom.Document.getHeight() -bounds.height ) / 2),
+          marginLeft : Math.round( ( qx.bom.Document.getWidth() -bounds.width) / 2)
+        });
+      }
     }, this);   
     
     /*
      * create widget content
      */
-    this._createWidgetContent();
+    this._createWidgetContent(properties);
     
     /*
      * set properties if given
@@ -276,6 +281,7 @@ qx.Class.define("dialog.Dialog",
     {
       this.set(properties);
     }
+
     /*
      * if argument is a string, assume it is a message
      */
@@ -485,9 +491,10 @@ qx.Class.define("dialog.Dialog",
     _createDialogContainer : function()
     {
       this.__container = new qx.ui.groupbox.GroupBox().set({
-        layout : new qx.ui.layout.VBox(10),
-        contentPadding: [16, 16, 16, 16]
-      });
+        layout          : new qx.ui.layout.VBox(10),
+        contentPadding  : [ 5, 5, 5, 5 ],
+        backgroundColor : "background-application"
+      });      
       this.add( this.__container );
       return this.__container;
     },      
@@ -507,7 +514,7 @@ qx.Class.define("dialog.Dialog",
         okButton.setAppearance(
           dialog.Dialog._appearances.okButtonAppearance);
       }
-      okButton.setAllowStretchX(false);
+      okButton.setAllowStretchX(false);      
       okButton.addListener("execute", this._handleOk, this);  
       this.addListener("appear",function(){
         okButton.focus();
