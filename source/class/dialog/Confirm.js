@@ -136,7 +136,6 @@ qx.Class.define("dialog.Confirm",
       var groupboxContainer = new qx.ui.groupbox.GroupBox().set({
         margin          : [ 15, 15, 15, 15 ],
         maxWidth        : 600,
-        maxHeight       : 130,
         backgroundColor : "dialog-background"
       });
       var decorator = new qx.ui.decoration.Decorator();

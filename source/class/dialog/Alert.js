@@ -52,7 +52,6 @@ qx.Class.define("dialog.Alert",
       var groupboxContainer = new qx.ui.groupbox.GroupBox().set({        
         margin          : [ 15, 15, 15, 15 ],
         maxWidth        : 600,
-        maxHeight       : 130,
         backgroundColor : "dialog-background"
       });
       
