@@ -394,6 +394,8 @@ qx.Class.define("dialog.Form",
         {
           case "groupheader" :
             this._form.addGroupHeader( fieldData.value );
+            formElement = new qx.ui.form.TextField(); // dummy
+            formElement.setUserData("excluded",true);
             break;
             
           case "textarea": 
@@ -752,7 +754,7 @@ qx.Class.define("dialog.Form",
          * add label and form element to form
          */
         var label = fieldData.label;
-        this._form.add( formElement, label, validator );
+        label && this._form.add( formElement, label, validator );
       }
       
       /*
