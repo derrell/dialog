@@ -256,7 +256,6 @@ qx.Class.define("dialog.Confirm",
     _handleYes : function()
     {
       this.hide();
-console.log("Confirm: callback=" + this.getCallback());
       if( this.getCallback() )
       {
         this.getCallback().call(this.getContext(),true);
