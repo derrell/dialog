@@ -130,8 +130,8 @@ qx.Class.define("dialog.Form",
     /**
      * Function to call just before creating the form's input fields. This
      * allows additional, non-form widgets to be added. The function is called
-     * one one argument: the container in which the form fields should be
-     * placed.
+     * one two arguments: the container in which the form fields should be
+     * placed, and the form object itself (this).
      */
     beforeFormFunction :
     {
@@ -143,10 +143,23 @@ qx.Class.define("dialog.Form",
     /**
      * Function to call just after creating the form's input fields. This
      * allows additional, non-form widgets to be added. The function is called
-     * one one argument: the container in which the form fields should be
-     * placed.
+     * one two arguments: the container in which the form fields should be
+     * placed, and the form object itself (this).
      */
     afterFormFunction :
+    {
+      check : "Function",
+      nullable : true,
+      init : null
+    },
+
+    /**
+     * Function to call just after creating the form's buttons. This allows
+     * additional, additional widgets to be added. The function is called with
+     * two arguments: the container in which the buttons were placed, and the
+     * form object itself (this).
+     */
+    afterButtonsFunction :
     {
       check : "Function",
       nullable : true,
@@ -247,18 +260,20 @@ qx.Class.define("dialog.Form",
       if (typeof properties.beforeFormFunction == "function")
       {
         f = properties.beforeFormFunction.bind(properties.context);
-        f(groupboxContainer);
+        f(groupboxContainer, this);
       }
 
       /* 
        * Form container  
        */
-      this._formContainer = new qx.ui.container.Composite;      
+      var formTag = new dialog.FormTag();
+      groupboxContainer.add( formTag );
+      this._formContainer = new qx.ui.container.Composite();
       this._formContainer.set({
         font : "bold"
       });
       this._formContainer.setLayout( new qx.ui.layout.Grow() );
-      groupboxContainer.add( this._formContainer, {flex: 1} );
+      formTag.add( this._formContainer, {flex: 1} );
       
       /*
        * If requested, call the after-form function to add some fields
@@ -266,14 +281,14 @@ qx.Class.define("dialog.Form",
       if (typeof properties.afterFormFunction == "function")
       {
         f = properties.afterFormFunction.bind(properties.context);
-        f(groupboxContainer);
+        f(groupboxContainer, this);
       }
 
       /*
        * buttons pane
        */
       var buttonPane = new qx.ui.container.Composite;
-      var bpLayout = new qx.ui.layout.HBox(5)
+      var bpLayout = new qx.ui.layout.HBox(5);
       bpLayout.setAlignX("center");
       buttonPane.set({
         font            : "bold",
@@ -294,6 +309,15 @@ qx.Class.define("dialog.Form",
       var cancelButton = this._createCancelButton();
       buttonPane.add( cancelButton );
       
+      /*
+       * If requested, call the after-buttons function
+       */
+      if (typeof properties.afterButtonsFunction == "function")
+      {
+        f = properties.afterButtonsFunction.bind(properties.context);
+        f(buttonPane, this);
+      }
+
     },
     
     /*
@@ -418,6 +442,8 @@ qx.Class.define("dialog.Form",
             
           case "passwordfield":
             formElement = new qx.ui.form.PasswordField();
+            formElement.getContentElement().setAttribute(
+              "autocomplete", "password");
             break;            
             
           case "combobox":
