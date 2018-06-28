@@ -491,6 +491,28 @@ qx.Class.define("dialog.Form",
             formElement = new qx.ui.form.Spinner();
             break;
 
+          case "list":
+            formElement = new qx.ui.form.List();
+            if (fieldData.selectionMode)
+            {
+              formElement.setSelectionMode(fieldData.selectionMode);
+            }
+            if (fieldData.dragSelection)
+            {
+              var mode = formElement.getSelectionMode();
+              if (mode == "single" || mode == "one")
+              {
+                this.debug("Drag selection not available in " + mode);
+              }
+              else
+              {
+                formElement.setDragSelection(fieldData.dragSelection);
+              }
+            }
+            var model = qx.data.marshal.Json.createModel( fieldData.options );
+            new qx.data.controller.List( model, formElement, "label");
+            break;
+
           default:
             this.error("Invalid form field type:" + fieldData.type);
   
@@ -546,18 +568,14 @@ qx.Class.define("dialog.Form",
                   var selectables = this.getSelectables();
                   selectables.forEach( function( selectable )
                   {
-                    //var key = this.getUserData("key");
-                    //console.warn( key +": '" + value + "' looking at '" + selectable.getLabel() + "' => " +  selectable.getModel().getValue() );
                     if ( selectable.getModel().getValue() === value )
                     {
-                      //console.warn("Getting value for '" + key +"': " + value + " -> Setting selection to  '" + selectable.getLabel() + "'..");
                       selected=selectable;
                     }
                   }, this );
                   
                   if( ! selected )
                   {
-                    //console.warn("Getting value for " + key +": " + value + " -> No selection found" );
                     return [selectables[0]];
                   }
                   return [selected];
@@ -566,8 +584,6 @@ qx.Class.define("dialog.Form",
                 "converter" : qx.lang.Function.bind( function( selection )
                 {  
                   var value = selection[0].getModel().getValue();
-                  //var key = this.getUserData("key");
-                  //console.warn("Selection is " + ( selection.length ? selection[0].getLabel() : "none" ) + " -> Setting value for " + key +": " + value );
                   return value; 
                 }, formElement)
               }
@@ -613,6 +629,39 @@ qx.Class.define("dialog.Form",
           case "spinner":
             this._formController.addTarget(
                 formElement, "value", key, true, null);
+            break;
+
+          case "list":
+            this._formController.addTarget( 
+              formElement, "selection", key, true, {  
+                "converter" : qx.lang.Function.bind( function( value )
+                {
+                  var selected=[];
+                  var selectables = this.getSelectables();
+                  selectables.forEach( function( selectable )
+                  {
+                    if ((value instanceof Array ||
+                         value instanceof qx.data.Array) &&
+                        value.includes(selectable.getModel().getValue()))
+                    {
+                      selected.push(selectable);
+                    }
+                  }, this );
+                  
+                  return selected;
+                }, formElement)
+              },{  
+                "converter" : qx.lang.Function.bind( function( selection )
+                {  
+                  var value = [];
+                  selection.forEach( function ( selected )
+                  {
+                    value.push(selected.getModel().getValue());
+                  });
+                  return value; 
+                }, formElement)
+              }
+            );          
             break;
         }
         
