@@ -28,6 +28,15 @@ qx.Class.define("dialog.Form",
 {
   extend : dialog.Dialog,
   
+  construct : function(properties)
+  {
+    this.base(arguments, properties);
+
+    // Initialize form instances to an empty map which will be updated as
+    // formItems are added
+    this.setFormElements({});
+  },
+
   /*
   *****************************************************************************
      PROPERTIES
@@ -94,6 +103,17 @@ qx.Class.define("dialog.Form",
       apply : "_applyFormData"
     },
     
+    /**
+     * After the form has been created, this property will contain a map
+     * containing the form item instances, with the key being the name used in
+     * formData, and the value being the item element.
+     */
+    formElements :
+    {
+      check : "Map",
+      nullable : true
+    },
+
     /**
      * The model of the result data
      */
@@ -830,6 +850,11 @@ qx.Class.define("dialog.Form",
          */
         var label = fieldData.label;
         label && this._form.add( formElement, label, validator );
+
+        /*
+         * add the form element to the map so the user has access to it later
+         */
+        this.getFormElements()[key] = formElement;
       }
       
       /*
@@ -879,6 +904,7 @@ qx.Class.define("dialog.Form",
           this._formContainer.getChildren().length > 0)
       {
         view = this._formContainer.getChildren()[0];
+        view.getLayout().setColumnWidth(0, width);
         view.getLayout().setColumnMaxWidth(0, width);
       }
     },
