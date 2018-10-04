@@ -30,11 +30,16 @@ qx.Class.define("dialog.Form",
   
   construct : function(properties)
   {
-    this.base(arguments, properties);
-
     // Initialize form instances to an empty map which will be updated as
-    // formItems are added
-    this.setFormElements({});
+    // formItems are added.  After the formData has been applied, this
+    // property will contain a map containing the form item instances, with
+    // the key being the name used in formData, and the value being the item
+    // element. In particular, the afterFormFunction, which receives the form
+    // as its second parameter, may reference this member to gain access to
+    // the form elements created for the form.
+    this._formElements = {};
+
+    this.base(arguments, properties);
   },
 
   /*
@@ -103,17 +108,6 @@ qx.Class.define("dialog.Form",
       apply : "_applyFormData"
     },
     
-    /**
-     * After the form has been created, this property will contain a map
-     * containing the form item instances, with the key being the name used in
-     * formData, and the value being the item element.
-     */
-    formElements :
-    {
-      check : "Map",
-      nullable : true
-    },
-
     /**
      * The model of the result data
      */
@@ -215,6 +209,7 @@ qx.Class.define("dialog.Form",
     _form : null,
     _formValidator : null,
     _formController : null,
+    _formElements : null,
     
     /*
     ---------------------------------------------------------------------------
@@ -854,7 +849,7 @@ qx.Class.define("dialog.Form",
         /*
          * add the form element to the map so the user has access to it later
          */
-        this.getFormElements()[key] = formElement;
+        this._formElements[key] = formElement;
       }
       
       /*
