@@ -154,6 +154,23 @@ qx.Class.define("dialog.Form",
       init : null
     },
 
+    /*
+     * Function to call with the internal form, allowing the user to do things
+     * such as set up a form validator (vs. field validators) on the form. The
+     * function is called with two arguments: the internal qx.ui.form.Form
+     * object, and the current dialog.Form object. An attempt is made to call
+     * the function in the context specified in the form data, but that may
+     * not work properly if the context property is not yet set at the time at
+     * the form is created.
+     */
+    formReadyFunction :
+    {
+      check : "Function",
+      nullable : true,
+      init : null,
+      event : "formReadyFunctionChanged"
+    },
+
     /**
      * Function to call just after creating the form's input fields. This
      * allows additional, non-form widgets to be added. The function is called
@@ -350,6 +367,7 @@ qx.Class.define("dialog.Form",
      */
     _applyFormData : function ( formData, old )
     {
+      var f;
 
       /*
        * remove container content, form, controller
@@ -413,10 +431,29 @@ qx.Class.define("dialog.Form",
       this._formController = new qx.data.controller.Object( this.getModel() );
       
       /*
-       * hook for subclasses to do something with the new form
+       * hooks for subclasses or users to do something with the new form
        */
       this._onFormReady( this._form );
-      
+      f = this.getFormReadyFunction();
+      if (f)
+      {
+        f.call(this.getContext(), this._form, this);
+      }
+      else
+      {
+        this.addListenerOnce(
+          "formReadyFunctionChanged",
+          function()
+          {
+            f = this.getFormReadyFunction();
+            if (f)
+            {
+              f.call(this.getContext(), this._form, this);
+            }
+          },
+          this.getContext());
+      }
+
       /*
        * loop through form data array
        */
